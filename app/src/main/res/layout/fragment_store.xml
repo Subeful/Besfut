@@ -8,7 +8,7 @@
     tools:context=".screens.main_fragment.StoreFragment">
 
     <LinearLayout
-        android:id="@+id/title"
+        android:id="@+id/title_store"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -35,7 +35,7 @@
             android:layout_marginEnd="30dp"
             android:layout_marginTop="18dp">
             <TextView
-                android:id="@+id/balance_coin"
+                android:id="@+id/balance_coin_store"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/CoinText"
@@ -50,7 +50,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/progress_layout_store"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
@@ -58,9 +58,10 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title">
+        app:layout_constraintTop_toBottomOf="@+id/title_store">
 
         <ProgressBar
+            android:id="@+id/progress_coin_store"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="0dp"
             android:layout_height="10dp"
@@ -70,6 +71,7 @@
             android:progressDrawable="@drawable/progress_coin" />
 
         <TextView
+            android:id="@+id/progress_coin_value_store"
             style="@style/LvlText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -83,7 +85,7 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_group"
+        android:id="@+id/rv_group_store"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginHorizontal="20dp"
@@ -91,7 +93,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/progress_layout_store"
         app:layout_constraintVertical_bias="1.0"
         tools:itemCount="3"
         tools:listitem="@layout/model_group" />

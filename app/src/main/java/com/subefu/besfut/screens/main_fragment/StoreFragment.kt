@@ -21,7 +21,7 @@ class StoreFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentStoreBinding.inflate(inflater)
 
-        rv = binding.rvGroup
+        rv = binding.rvGroupStore
         rv.adapter = GroupAdapter(requireContext(),
             listOf(
                 ModelGroup("group_1", listOf(
@@ -48,9 +48,5 @@ class StoreFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-    }
 
 }

@@ -10,7 +10,7 @@
         android:id="@+id/imageView"
         android:layout_width="8dp"
         android:layout_height="10dp"
-        android:background="@drawable/piont"
+        android:background="@drawable/point"
         android:backgroundTint="@color/gray"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
