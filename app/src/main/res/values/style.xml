@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TitleText">
+        <item name="android:textSize">50sp</item>
+        <item name="android:textColor">@color/yellow</item>
+        <item name="fontFamily">@font/alumni_sans_semibold</item>
+        <item name="android:layout_gravity">bottom|center</item>
+        <item name="android:layout_marginEnd">20dp</item>
+        <item name="android:layout_marginTop">5dp</item>
+    </style>
+
+    <style name="CoinText">
+        <item name="android:textSize">35sp</item>
+        <item name="android:textColor">@color/light</item>
+        <item name="fontFamily">@font/alumni_sans</item>
+    </style>
+
+    <style name="LvlText">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/light</item>
+        <item name="fontFamily">@font/alumni_sans_light</item>
+        <item name="android:layout_marginStart">10dp</item>
+    </style>
+</resources>
