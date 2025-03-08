@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">Besfut</string>
+
+    <string name="shop">Besfut</string>
+    <string name="reward">reward</string>
+    <string name="stat">stat</string>
+    <string name="splash">just level up</string>
+
+    <string name="sport_health">опыт</string>
+    <string name="learning">монеты</string>
+
+    <string name="others">заработано</string>
+    <string name="all">всего</string>
+    <string name="spent">потрачено</string>
+    <string name="average">среднее</string>
+
+    <string name="series">серии</string>
+    <string name="score_ratio">соотношение очков</string>
+    <string name="time_phone">время в телефоне</string>
+    <string name="time_learning">время на учебу</string>
+    <string name="active_day">активный день</string>
+    <string name="pass">пропуск</string>
+    <string name="top_reward">топ наград</string>
+
+    <string name="name">название</string>
+    <string name="price">цена</string>
+    <string name="category">категория</string>
+
+
 </resources>
