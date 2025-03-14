@@ -2,31 +2,38 @@ package com.subefu.besfut.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.subefu.besfut.R
+import com.subefu.besfut.databinding.ModelGroupBinding
 import com.subefu.besfut.models.ModelGroup
 
-class GroupAdapter(val context: Context, val listItem: List<ModelGroup>): RecyclerView.Adapter<GroupAdapter.GroupViewHolder>() {
+
+class GroupAdapter(val context: Context, val listItem: List<ModelGroup>, val listener: (out: Int, inn: Int) -> Unit): RecyclerView.Adapter<GroupAdapter.GroupViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.model_group, parent, false)
-        return GroupViewHolder(view)
+        val binding = ModelGroupBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return GroupViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: GroupViewHolder, position: Int) {
-        holder.name.text = listItem[position].name
-        holder.rv.layoutManager = GridLayoutManager(context, 2)
-        holder.rv.adapter = ItemAdapter(context, listItem[position].listItems)
+        val name = listItem[position].name
+        holder.bind(name, position)
     }
 
     override fun getItemCount() = listItem.size
 
-    class GroupViewHolder(view: View): RecyclerView.ViewHolder(view){
-        val name = view.findViewById<TextView>(R.id.group_name)
-        val rv = view.findViewById<RecyclerView>(R.id.rv_items)
+    inner class GroupViewHolder(binding: ModelGroupBinding): RecyclerView.ViewHolder(binding.root){
+        val tv_name = binding.groupName
+        val rv = binding.rvItems
+
+        fun bind(name: String, position: Int){
+            tv_name.text = name
+
+            rv.layoutManager = GridLayoutManager(itemView.context, 2)
+            rv.adapter = ItemAdapter(itemView.context, listItem[position].listItems){ i ->
+                listener(position, i)
+            }
+        }
     }
 }

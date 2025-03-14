@@ -13,9 +13,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Сон"
-        android:textSize="28sp"
+        android:textSize="25sp"
         android:textColor="@color/light"
-        android:fontFamily="@font/alumni_sans_semibold"/>
+        android:fontFamily="@font/alumni_sans"/>
     <TextView
         android:id="@+id/model_series_item_series"
         android:layout_width="wrap_content"
@@ -23,5 +23,5 @@
         android:text="20"
         android:textSize="30sp"
         android:textColor="@color/light"
-        android:fontFamily="@font/alumni_sans"/>
+        android:fontFamily="@font/alumni_sans_light"/>
 </LinearLayout>

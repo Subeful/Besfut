@@ -4,28 +4,97 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Dao
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.subefu.besfut.R
 import com.subefu.besfut.databinding.ActivityMainBinding
+import com.subefu.besfut.db.DbCategory
+import com.subefu.besfut.db.DbItem
+import com.subefu.besfut.db.DbState
+import com.subefu.besfut.db.DbStorageItem
+import com.subefu.besfut.db.MyDatabase
 import com.subefu.besfut.screens.main_fragment.RewardFragment
 import com.subefu.besfut.screens.main_fragment.StatisticFragment
 import com.subefu.besfut.screens.main_fragment.StoreFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    lateinit var botnav: BottomNavigationView
+    lateinit var dao: com.subefu.besfut.db.Dao
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
         enableEdgeToEdge()
-        hideSystemPanel()
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         init()
+    }
 
-        botnav.setOnItemSelectedListener{
+    fun init(){
+        hideSystemPanel()
+        setListenerBotNav()
+        setConfigBotNav()
+
+        initialDatabase()
+    }
+
+    fun initialDatabase(){
+        dao = MyDatabase.getDb(this).getDao()
+        lifecycleScope.launch(Dispatchers.IO) {
+            if(dao.checkExistConfig() == 0) {
+                dao.createState(DbState())
+
+                loadSystemItem()
+                loadSystemReward()
+                loadSystemStorage()
+
+                setFragment(StoreFragment())
+            }
+        }
+    }
+    fun loadSystemItem(){
+        val category_id = dao.getMaxIdFromCategory()
+        val item_id = dao.getMaxIdFromItem()
+        dao.createCategories(listOf(
+            DbCategory(category_id+1, "Развлечения", 1),
+            DbCategory(category_id+2, "Пропуски", 1))
+        )
+
+        val name_1 = dao.getCategoryIdByName("Развлечения")
+        val name_2 = dao.getCategoryIdByName("Пропуски")
+        dao.createItems(listOf(
+            DbItem(item_id + 1,  "Телефон", 30, name_1, 30),
+            DbItem(item_id + 2,  "Музыка", 30, name_1, 1),
+            DbItem(item_id + 3,  "Купить что-то", 30, name_1, 1),
+            DbItem(item_id + 4,  "Запретка", 30, name_1, 1),
+            DbItem(item_id + 5,  "Купон на еду", 30, name_1, 100),
+        ))
+        dao.createItems(listOf(
+            DbItem(item_id + 6, "Выходной", 30, name_2, 1),
+            DbItem(item_id + 7, "Пропуск занятия", 30, name_2, 1),
+            DbItem(item_id + 8, "Пропуск трени", 30, name_2, 1),
+            DbItem(item_id + 9, "Отложить сон", 30, name_2, 30),
+        ))
+    }
+
+    fun loadSystemReward(){
+//      TODO("create reward")
+    }
+    fun loadSystemStorage(){
+        var i = 1
+        dao.createRecordsInStorage(
+            dao.getAllItems().map { x -> DbStorageItem(x.id, itemId = x.id, count = 0) }.toList()
+        )
+    }
+
+    fun setListenerBotNav(){
+        binding.botnav.setOnItemSelectedListener{
             when(it.itemId){
                 R.id.menu_store -> setFragment(StoreFragment())
                 R.id.menu_reward -> setFragment(RewardFragment())
@@ -34,26 +103,21 @@ class MainActivity : AppCompatActivity() {
             true
         }
     }
-
-    fun init(){
-        setConfigBotNav()
-        setFragment(StoreFragment())
-    }
-
     fun setConfigBotNav(){
-        botnav = binding.botnav
-        botnav.itemActiveIndicatorColor = getColorStateList(R.color.transparent)
-        botnav.isItemActiveIndicatorEnabled = true
-        botnav.labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_SELECTED
-        botnav.selectedItemId = R.id.menu_store
+        binding.botnav.apply {
+            itemActiveIndicatorColor = getColorStateList(R.color.transparent)
+            isItemActiveIndicatorEnabled = true
+            labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_SELECTED
+            selectedItemId = R.id.menu_store}
     }
+
     fun setFragment(fragment: Fragment){
         supportFragmentManager.beginTransaction().replace(binding.frameLayout.id, fragment).commit()
     }
 
     fun hideSystemPanel(){
         this.window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         or View.SYSTEM_UI_FLAG_FULLSCREEN
                         or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         or View.SYSTEM_UI_FLAG_LAYOUT_STABLE

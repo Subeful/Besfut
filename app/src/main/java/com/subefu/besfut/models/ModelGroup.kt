@@ -1,3 +1,5 @@
 package com.subefu.besfut.models
 
-data class ModelGroup(val name: String, val listItems: List<ModelItem>)
+import com.subefu.besfut.db.DbItem
+
+data class ModelGroup(val name: String, val listItems: List<DbItem>)
