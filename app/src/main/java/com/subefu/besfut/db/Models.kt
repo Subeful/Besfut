@@ -112,8 +112,12 @@ data class DbStorageItem(
     var id: Int,
     @ColumnInfo("itemId")
     var itemId: Int = 0,
+    @ColumnInfo("name")
+    var name: String = "",
     @ColumnInfo("count")
-    var count: Int = 0
+    var count: Int = 0,
+    @ColumnInfo("groupId")
+    var groupId: Int = 0
 )
 
 

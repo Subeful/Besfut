@@ -50,6 +50,8 @@ interface Dao {
         fun getAllCategories(targetMode: Int): List<DbCategory>
         @Query("select id from category where name = :name")
         fun getCategoryIdByName(name: String): Int
+        @Query("select name from category where id = :id")
+        fun getCategoryNameById(id: Int): String
 
     //Storage
         @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -59,7 +61,9 @@ interface Dao {
         @Query("select * from storage where count != 0")
         fun getAllRemindingItems(): Flow<List<DbStorageItem>>
         @Query("update storage set count = count + :newCount where itemId = :id")
-        fun updateStorageItem(newCount: Int, id: Int)
+        fun updateStorageItem(id: Int, newCount: Int)
+        @Query("update storage set count = count - :spent where itemId = :id")
+        fun spentStorageItem(id: Int, spent: Int)
 
     //Action
         @Query("update state set amountCoin = amountCoin - :price, coinInDay = coinInDay + :price")

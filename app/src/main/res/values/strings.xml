@@ -2,6 +2,7 @@
     <string name="app_name">Besfut</string>
 
     <string name="store">STORE</string>
+    <string name="storage">STORAGE</string>
     <string name="reward">REWARD</string>
     <string name="statistic">STATISTIC</string>
     <string name="settings">SETTINGS</string>

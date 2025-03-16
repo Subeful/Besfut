@@ -18,6 +18,7 @@ import com.subefu.besfut.db.DbStorageItem
 import com.subefu.besfut.db.MyDatabase
 import com.subefu.besfut.screens.main_fragment.RewardFragment
 import com.subefu.besfut.screens.main_fragment.StatisticFragment
+import com.subefu.besfut.screens.main_fragment.StorageFragment
 import com.subefu.besfut.screens.main_fragment.StoreFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         dao = MyDatabase.getDb(this).getDao()
         lifecycleScope.launch(Dispatchers.IO) {
             if(dao.checkExistConfig() == 0) {
-                dao.createState(DbState())
+                dao.createState(DbState(coinLimitDay = 1000))
 
                 loadSystemItem()
                 loadSystemReward()
@@ -87,9 +88,8 @@ class MainActivity : AppCompatActivity() {
 //      TODO("create reward")
     }
     fun loadSystemStorage(){
-        var i = 1
         dao.createRecordsInStorage(
-            dao.getAllItems().map { x -> DbStorageItem(x.id, itemId = x.id, count = 0) }.toList()
+            dao.getAllItems().map { x -> DbStorageItem(x.id, itemId = x.id, name = x.name, groupId = x.categoryId, count = 0) }.toList()
         )
     }
 
@@ -97,6 +97,7 @@ class MainActivity : AppCompatActivity() {
         binding.botnav.setOnItemSelectedListener{
             when(it.itemId){
                 R.id.menu_store -> setFragment(StoreFragment())
+                R.id.menu_storage -> setFragment(StorageFragment())
                 R.id.menu_reward -> setFragment(RewardFragment())
                 R.id.menu_statistic -> setFragment(StatisticFragment())
             }

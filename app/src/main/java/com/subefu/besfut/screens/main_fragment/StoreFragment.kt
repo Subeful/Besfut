@@ -9,17 +9,24 @@ import android.util.Log
 import android.util.TimeUtils
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 
 import androidx.recyclerview.widget.RecyclerView
+import com.subefu.besfut.R
 import com.subefu.besfut.adapters.GroupAdapter
+import com.subefu.besfut.adapters.ItemAdapter
 import com.subefu.besfut.databinding.FragmentStoreBinding
 import com.subefu.besfut.db.Dao
+import com.subefu.besfut.db.DbItem
 import com.subefu.besfut.db.MyDatabase
 import com.subefu.besfut.models.ModelGroup
+import com.subefu.besfut.utils.BindViewHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -107,20 +114,49 @@ class StoreFragment : Fragment() {
     }
     fun setRecycler(goods: List<ModelGroup>){
         rv = binding.rvGroupStore
-        rv.adapter = GroupAdapter(binding.root.context, goods){ o, i ->
-            val item = goods[o].listItems[i]
-            Log.d("INFO", "$o, $i\n${item.name} - ${item.price}")
-            buyGoods(item.price, item.id)
-        }
+        rv.adapter = createGroupAdapter(goods)
+    }
+    fun createGroupAdapter(goods: List<ModelGroup>): GroupAdapter<ModelGroup> {
+        return GroupAdapter(
+            goods,
+            object : BindViewHolder<ModelGroup> {
+                override fun bind(view: View, item: ModelGroup, position: Int, listener: (out: Int, inn: Int) -> Unit) {
+                    bindGroupView(view, item, position, listener)
+                }
+            },
+            { out, inn ->
+                val item = goods[out].listItems[inn]
+                buyGoods(item)
+                Log.d("INFO", "${item.name} - ${item.price}")
+            }
+        )
+    }
+    fun bindGroupView(view: View, item: ModelGroup, position: Int, listener: (out: Int, inn: Int) -> Unit) {
+        view.findViewById<TextView>(R.id.group_name).text = item.name
+        val rv = view.findViewById<RecyclerView>(R.id.rv_items)
+        rv.layoutManager = GridLayoutManager(requireContext(), 2)
+        rv.adapter = createItemAdapter(item.listItems, position, listener)
+    }
+    fun createItemAdapter(items: List<DbItem>, groupPosition: Int, listener: (out: Int, inn: Int) -> Unit): ItemAdapter<DbItem> {
+        return ItemAdapter(
+            R.layout.model_item,
+            items,
+            { view, item ->
+                view.findViewById<TextView>(R.id.item_name).text = item.name
+                view.findViewById<TextView>(R.id.item_price).text = item.price.toString()
+            },
+            { inner -> listener(groupPosition, inner) }
+        )
     }
 
-    fun buyGoods(price: Int, id: Int){
-        lifecycleScope.launch(Dispatchers.IO) {
-            if(dao.getReminderCoinInDay() > price) {
-                val count = dao.getQuantityItem(id)
 
-                dao.buyGoods(price)
-                dao.updateStorageItem(count, id)
+    fun buyGoods(item: DbItem){
+        lifecycleScope.launch(Dispatchers.IO) {
+            if(dao.getReminderCoinInDay() > item.price) {
+                val count = dao.getQuantityItem(item.id)
+
+                dao.buyGoods(item.price)
+                dao.updateStorageItem(item.id, count)
             }
         }
     }
