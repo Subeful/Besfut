@@ -55,7 +55,7 @@ data class DbState(
     @ColumnInfo(name = "amountExp")
     var amountExp: Int = 0,
     @ColumnInfo(name = "lvl")
-    var lvl: Int = 0,
+    var lvl: Int = 1,
 
     @ColumnInfo(name = "coinInDay")
     var coinInDay: Int = 0,

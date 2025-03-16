@@ -13,6 +13,7 @@ import com.subefu.besfut.R
 import com.subefu.besfut.databinding.ActivityMainBinding
 import com.subefu.besfut.db.DbCategory
 import com.subefu.besfut.db.DbItem
+import com.subefu.besfut.db.DbReward
 import com.subefu.besfut.db.DbState
 import com.subefu.besfut.db.DbStorageItem
 import com.subefu.besfut.db.MyDatabase
@@ -85,7 +86,30 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loadSystemReward(){
-//      TODO("create reward")
+        val category_id = dao.getMaxIdFromCategory()
+
+        dao.createCategories(
+            listOf(
+                DbCategory(category_id+1, "Спорт и здоровье", 0),
+                DbCategory(category_id+2, "Учеба и развитие", 0),
+            )
+        )
+        dao.createRewards(
+            listOf(
+                DbReward(1, "Зарядка", 20, category_id+1, 0),
+                DbReward(1, "Прогулка", 20, category_id+1, 0),
+                DbReward(1, "Сон > 8ч.", 20, category_id+1, 0),
+                DbReward(1, "Тренировка", 20, category_id+1, 0),
+            )
+        )
+        dao.createRewards(
+            listOf(
+                DbReward(1, "Что-то новое", 20, category_id+2, 0),
+                DbReward(1, "+20 слов", 20, category_id+2, 0),
+                DbReward(1, "Прочитать главу.", 20, category_id+2, 0),
+                DbReward(1, "Android", 20, category_id+2, 0),
+            )
+        )
     }
     fun loadSystemStorage(){
         dao.createRecordsInStorage(

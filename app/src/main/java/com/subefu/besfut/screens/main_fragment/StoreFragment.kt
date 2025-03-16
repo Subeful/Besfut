@@ -2,14 +2,10 @@ package com.subefu.besfut.screens.main_fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.icu.util.Calendar
-import android.icu.util.TimeUnit
 import android.os.Bundle
 import android.util.Log
-import android.util.TimeUtils
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.TextureView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -29,7 +25,6 @@ import com.subefu.besfut.models.ModelGroup
 import com.subefu.besfut.utils.BindViewHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -99,7 +94,7 @@ class StoreFragment : Fragment() {
 
     fun loadingStoreGoods(){
         lifecycleScope.launch(Dispatchers.IO) {
-            val listModelGroups = ArrayList<ModelGroup>()
+            val listModelGroups = ArrayList<ModelGroup<DbItem>>()
 
             val listCategory = dao.getAllCategories(1)
             for(category in listCategory){
@@ -112,15 +107,15 @@ class StoreFragment : Fragment() {
             }
         }
     }
-    fun setRecycler(goods: List<ModelGroup>){
+    fun setRecycler(goods: List<ModelGroup<DbItem>>){
         rv = binding.rvGroupStore
         rv.adapter = createGroupAdapter(goods)
     }
-    fun createGroupAdapter(goods: List<ModelGroup>): GroupAdapter<ModelGroup> {
+    fun createGroupAdapter(goods: List<ModelGroup<DbItem>>): GroupAdapter<ModelGroup<DbItem>> {
         return GroupAdapter(
             goods,
-            object : BindViewHolder<ModelGroup> {
-                override fun bind(view: View, item: ModelGroup, position: Int, listener: (out: Int, inn: Int) -> Unit) {
+            object : BindViewHolder<ModelGroup<DbItem>> {
+                override fun bind(view: View, item: ModelGroup<DbItem>, position: Int, listener: (out: Int, inn: Int) -> Unit) {
                     bindGroupView(view, item, position, listener)
                 }
             },
@@ -131,7 +126,7 @@ class StoreFragment : Fragment() {
             }
         )
     }
-    fun bindGroupView(view: View, item: ModelGroup, position: Int, listener: (out: Int, inn: Int) -> Unit) {
+    fun bindGroupView(view: View, item: ModelGroup<DbItem>, position: Int, listener: (out: Int, inn: Int) -> Unit) {
         view.findViewById<TextView>(R.id.group_name).text = item.name
         val rv = view.findViewById<RecyclerView>(R.id.rv_items)
         rv.layoutManager = GridLayoutManager(requireContext(), 2)

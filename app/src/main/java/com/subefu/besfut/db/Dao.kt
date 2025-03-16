@@ -16,6 +16,8 @@ interface Dao {
         fun checkExistConfig(): Int
         @Query("select * from state")
         fun getCurrentState(): Flow<DbState>
+        @Query("select * from state")
+        fun getState(): DbState
         @Query("select currentDay from state")
         fun getCurrentDate(): String
         @Query("update state set currentDay = :newDate, coinInDay = 0, activeInDay = 0")
@@ -57,7 +59,7 @@ interface Dao {
         @Insert(onConflict = OnConflictStrategy.IGNORE)
         fun createRecordInStorage(item: DbStorageItem)
         @Insert(onConflict = OnConflictStrategy.IGNORE)
-        fun createRecordsInStorage(item: List<DbStorageItem>)
+        fun createRecordsInStorage(items: List<DbStorageItem>)
         @Query("select * from storage where count != 0")
         fun getAllRemindingItems(): Flow<List<DbStorageItem>>
         @Query("update storage set count = count + :newCount where itemId = :id")
@@ -65,9 +67,24 @@ interface Dao {
         @Query("update storage set count = count - :spent where itemId = :id")
         fun spentStorageItem(id: Int, spent: Int)
 
+    //Reward
+        @Insert(onConflict = OnConflictStrategy.IGNORE)
+        fun createReward(reward: DbReward)
+        @Insert(onConflict = OnConflictStrategy.IGNORE)
+        fun createRewards(rewards: List<DbReward>)
+//        @Query("select * from reward")
+//        fun getAllReward(): List<DbReward>
+        @Query("select * from reward where categoryId = :categoryId")
+        fun getRewardByCategory(categoryId: Int): List<DbReward>
+
     //Action
         @Query("update state set amountCoin = amountCoin - :price, coinInDay = coinInDay + :price")
         fun buyGoods(price: Int)
-
+        @Query("update state set amountCoin = amountCoin + :price, activeInDay = activeInDay + :price, amountExp = amountExp + :exp ")
+        fun getReward(price: Int, exp: Int)
+        @Query("update state set amountCoin = amountCoin + :bonus")
+        fun getBonus(bonus: Int)
+        @Query("update state set amountExp = :exp, lvl = :newLvl")
+        fun updateLvl(exp: Int, newLvl: Int)
 
 }
