@@ -96,18 +96,18 @@ class MainActivity : AppCompatActivity() {
         )
         dao.createRewards(
             listOf(
-                DbReward(1, "Зарядка", 20, category_id+1, 0),
-                DbReward(1, "Прогулка", 20, category_id+1, 0),
-                DbReward(1, "Сон > 8ч.", 20, category_id+1, 0),
-                DbReward(1, "Тренировка", 20, category_id+1, 0),
+                DbReward( 1,"Зарядка", 20, category_id+1, 0),
+                DbReward( 2,"Прогулка", 20, category_id+1, 0),
+                DbReward( 3,"Сон > 8ч.", 20, category_id+1, 0),
+                DbReward( 4,"Тренировка", 20, category_id+1, 0),
             )
         )
         dao.createRewards(
             listOf(
-                DbReward(1, "Что-то новое", 20, category_id+2, 0),
-                DbReward(1, "+20 слов", 20, category_id+2, 0),
-                DbReward(1, "Прочитать главу.", 20, category_id+2, 0),
-                DbReward(1, "Android", 20, category_id+2, 0),
+                DbReward(5, "Что-то новое", 20, category_id+2, 0),
+                DbReward(6, "+20 слов", 20, category_id+2, 0),
+                DbReward(7, "Чтение", 20, category_id+2, 0),
+                DbReward(8, "Android", 20, category_id+2, 0),
             )
         )
     }

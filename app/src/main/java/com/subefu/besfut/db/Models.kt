@@ -90,7 +90,9 @@ data class DbCoin(
     @ColumnInfo(name = "date")
     var date: String = "",
     @ColumnInfo(name = "earn")
-    var earn: Int = 0
+    var earn: Int = 0,
+    @ColumnInfo(name = "spent")
+    var spent: Int = 0
 )
 
 @Entity(tableName = "history", indices = [Index(value = ["date", "rewardId"], name = "idx_history_date_reward")])
@@ -101,9 +103,22 @@ data class DbHistory(
     @ColumnInfo(name = "date")
     var date: String = "",
     @ColumnInfo(name = "rewardId")
-    var rewardId: String = "",
-    @ColumnInfo(name = "varue")
-    var varue: Int = 0
+    var rewardId: Int = 0,
+    @ColumnInfo(name = "value")
+    var value: Int = 0
+)
+
+@Entity(tableName = "store_history", indices = [Index(value = ["date", "itemId"], name = "idx_store_history_date_reward")])
+data class DbStoreHistory(
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
+    var id: Int = 0,
+    @ColumnInfo(name = "date")
+    var date: String = "",
+    @ColumnInfo(name = "itemId")
+    var rewardId: Int = 0,
+    @ColumnInfo(name = "value")
+    var value: Int = 0
 )
 
 @Entity(tableName = "storage")

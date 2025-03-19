@@ -12,7 +12,7 @@ import com.subefu.besfut.utils.BindViewHolder
 
 class GroupAdapter<T>(val listItem: List<T>,
                       val bindView: BindViewHolder<T>,
-                      val listener: (out: Int, inn: Int) -> Unit
+                      val listener: (Int, Int) -> Unit
 ): RecyclerView.Adapter<GroupAdapter<T>.GroupViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupViewHolder {

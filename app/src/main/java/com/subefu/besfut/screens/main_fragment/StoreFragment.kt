@@ -19,7 +19,9 @@ import com.subefu.besfut.adapters.GroupAdapter
 import com.subefu.besfut.adapters.ItemAdapter
 import com.subefu.besfut.databinding.FragmentStoreBinding
 import com.subefu.besfut.db.Dao
+import com.subefu.besfut.db.DbCoin
 import com.subefu.besfut.db.DbItem
+import com.subefu.besfut.db.DbStoreHistory
 import com.subefu.besfut.db.MyDatabase
 import com.subefu.besfut.models.ModelGroup
 import com.subefu.besfut.utils.BindViewHolder
@@ -34,6 +36,8 @@ class StoreFragment : Fragment() {
    lateinit var rv: RecyclerView
 
    lateinit var dao: Dao
+   
+    var currentDate = "00-00-00" 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentStoreBinding.inflate(inflater)
@@ -49,6 +53,8 @@ class StoreFragment : Fragment() {
     }
 
     fun init(){
+        currentDate = SimpleDateFormat("dd-MM-yy").format(Date())
+        
         loadState()
         loadingStoreGoods()
     }
@@ -57,27 +63,27 @@ class StoreFragment : Fragment() {
         dao.getCurrentState().asLiveData().observe(viewLifecycleOwner){
             if (it == null) return@observe
             lifecycleScope.launch(Dispatchers.IO) {
-                if(checkCurrentDate())
+                if(checkCurrentcurrentDate())
                     lifecycleScope.launch(Dispatchers.Main) {
                         loadingBalance(it.amountCoin)
                         loadingCoinLimit(it.coinInDay, it.coinLimitDay)
                     }
                 else
-                    updateCurrentDate()
+                    upcurrentDateCurrentcurrentDate()
             }
             Log.d("DB_TEST", "coin: ${it.amountCoin}, coinINDay: ${it.coinInDay}, coinLimit: ${it.coinLimitDay}")
         }
     }
-    @SuppressLint("SimpleDateFormat")
-    suspend fun checkCurrentDate(): Boolean {
-        val isItDate = lifecycleScope.async(Dispatchers.IO) {
-            dao.getCurrentDate() == SimpleDateFormat("dd-MM-yy").format(Date())
+    @SuppressLint("SimplecurrentDateFormat")
+    suspend fun checkCurrentcurrentDate(): Boolean {
+        val isItcurrentDate = lifecycleScope.async(Dispatchers.IO) {
+            dao.getCurrentDate() == currentDate
         }
-        return isItDate.await()
+        return isItcurrentDate.await()
     }
-    fun updateCurrentDate(){
-        val newDate = SimpleDateFormat("dd-MM-yy").format(Date())
-        dao.updateCurrentDate(newDate)
+    fun upcurrentDateCurrentcurrentDate(){
+        val newcurrentDate = currentDate
+        dao.updateCurrentDate(newcurrentDate)
     }
 
     fun loadingBalance(coin: Int){
@@ -147,14 +153,29 @@ class StoreFragment : Fragment() {
 
     fun buyGoods(item: DbItem){
         lifecycleScope.launch(Dispatchers.IO) {
-            if(dao.getReminderCoinInDay() > item.price) {
-                val count = dao.getQuantityItem(item.id)
+            if(dao.getReminderCoinInDay() < item.price)
+                return@launch
 
-                dao.buyGoods(item.price)
-                dao.updateStorageItem(item.id, count)
-            }
+            spentHistoryCoin(item.price)
+            dao.buyGoods(item.price)
+            dao.updateStorageItem(item.id, item.quantity)
+            addHistoryStore(item)
         }
     }
 
+    fun spentHistoryCoin(earn: Int){
+        val currentCoinHistory = dao.getCoinOfDate(currentDate) ?: DbCoin(date = currentDate, earn = 0)
+        Log.d("REWARD", "${currentCoinHistory.spent}")
+        currentCoinHistory.spent += earn
+        dao.setCoin(currentCoinHistory)
+        Log.d("REWARD", " += ${currentCoinHistory.spent}")
+    }
 
+    fun addHistoryStore(item: DbItem){
+        val currentStoreHistory = dao.getRecordOfStoreHistoryByDate(item.id, currentDate)
+            ?: DbStoreHistory(rewardId = item.id, value = 0, date = currentDate)
+        Log.d("REWARD", "${currentStoreHistory}")
+        currentStoreHistory.value += item.quantity
+        dao.setRecordStoreHistory(currentStoreHistory)
+    }
 }

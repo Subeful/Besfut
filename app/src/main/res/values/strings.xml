@@ -11,15 +11,15 @@
     <string name="sport_health">опыт</string>
     <string name="learning">монеты</string>
 
-    <string name="earned">заработано: 1200</string>
-    <string name="spent">потрачено: 3200</string>
-    <string name="all">всего: 3100</string>
-    <string name="average">среднее: 3430</string>
+    <string name="earned">заработано</string>
+    <string name="spent">потрачено</string>
+    <string name="all">всего</string>
+    <string name="average">среднее</string>
 
     <string name="series">серии</string>
     <string name="exp">ОПЫТ</string>
     <string name="coin">МОНЕТЫ</string>
-    <string name="score_ratio">соотношение очков</string>
+    <string name="score_ratio">СООТНОШЕНИЕ МОНЕТ</string>
     <string name="time_phone">время в телефоне</string>
     <string name="time_learning">время на учебу</string>
     <string name="active_day">активный день</string>

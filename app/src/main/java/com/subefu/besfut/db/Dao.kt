@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.subefu.besfut.models.ModelHistory
+import com.subefu.besfut.models.ModelResponse
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -36,10 +38,10 @@ interface Dao {
         fun getItemsByCategoryId(targetId: Int): List<DbItem>
         @Query("select * from item where id = :targetId")
         fun getItemById(targetId: Int): DbItem
+        @Query("select * from item where name = :name")
+        fun getItemByName(name: String): DbItem
         @Query("select * from item")
         fun getAllItems(): List<DbItem>
-        @Query("select quantity from item where id = :id")
-        fun getQuantityItem(id: Int): Int
 
     //Category
         @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -72,10 +74,12 @@ interface Dao {
         fun createReward(reward: DbReward)
         @Insert(onConflict = OnConflictStrategy.IGNORE)
         fun createRewards(rewards: List<DbReward>)
-//        @Query("select * from reward")
-//        fun getAllReward(): List<DbReward>
         @Query("select * from reward where categoryId = :categoryId")
         fun getRewardByCategory(categoryId: Int): List<DbReward>
+        @Query("select * from reward where name = :name")
+        fun getRewardByName(name: String): DbReward
+        @Query("update reward set series = :newSeries where id = :id")
+        fun updateSeries(id: Int, newSeries: Int)
 
     //Action
         @Query("update state set amountCoin = amountCoin - :price, coinInDay = coinInDay + :price")
@@ -87,4 +91,44 @@ interface Dao {
         @Query("update state set amountExp = :exp, lvl = :newLvl")
         fun updateLvl(exp: Int, newLvl: Int)
 
+        @Query("select * from coin where date = :date")
+        fun getCoinOfDate(date: String): DbCoin?
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        fun setCoin(dbCoin: DbCoin)
+
+        @Query("select * from experience where date = :date")
+        fun getExpOfDate(date: String): DbExp?
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
+        fun setExp(dbExp: DbExp)
+
+    //Statistic
+        //Coin & Exp
+            @Query("select * from experience order by id desc limit 30")
+            fun getExpOfMonth(): List<DbExp>
+            @Query("select * from coin order by id desc limit 30")
+            fun getCoinOfMonth(): List<DbCoin>
+            @Query("select * from coin order by id desc")
+            fun getCoinForAllTime(): List<DbCoin>
+            @Query("select sum(spent) from coin")
+            fun getAllSpentCoin(): Int
+            @Query("select sum(earn) from coin")
+            fun getAllEarnCoin(): Int
+        //Reward
+            @Query("select * from reward where series != -1")
+            fun getRewardSeries(): List<DbReward>
+            @Query("select date, value from history h join reward r on h.rewardId = r.id where r.id = :targetRewardId order by h.date")
+            fun getHistoryOfReward(targetRewardId: Int): List<ModelHistory>
+            @Query("select r.name, sum(h.value) as result from history h join reward r on h.rewardId = r.id group by r.name order by result desc")
+            fun getBestReward(): List<ModelResponse>
+            @Query("select * from history where rewardId = :id and date = :date")
+            fun getRecordOfHistoryByDate(id: Int, date: String): DbHistory?
+            @Insert(onConflict = OnConflictStrategy.REPLACE)
+            fun setRecordHistory(record: DbHistory)
+        //Item
+            @Insert(onConflict = OnConflictStrategy.REPLACE)
+            fun setRecordStoreHistory(record: DbStoreHistory)
+            @Query("select * from store_history where itemId = :id and date = :date")
+            fun getRecordOfStoreHistoryByDate(id: Int, date: String): DbStoreHistory?
+            @Query("select date, value from store_history s join item i on s.itemId = i.id where i.id = :targetItemId order by s.date")
+            fun getStoreHistoryOfItem(targetItemId: Int): List<ModelHistory>
 }

@@ -17,6 +17,9 @@ import com.subefu.besfut.adapters.GroupAdapter
 import com.subefu.besfut.adapters.ItemAdapter
 import com.subefu.besfut.databinding.FragmentRewardBinding
 import com.subefu.besfut.db.Dao
+import com.subefu.besfut.db.DbCoin
+import com.subefu.besfut.db.DbExp
+import com.subefu.besfut.db.DbHistory
 import com.subefu.besfut.db.DbReward
 import com.subefu.besfut.db.DbState
 import com.subefu.besfut.db.MyDatabase
@@ -24,6 +27,9 @@ import com.subefu.besfut.models.ModelGroup
 import com.subefu.besfut.utils.BindViewHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 
 
 class RewardFragment : Fragment() {
@@ -144,6 +150,10 @@ class RewardFragment : Fragment() {
             val state = dao.getState()
             checkExcessLimitActive(state, item)
             checkExcessExp(state, item)
+            addHistoryCoin(item.price)
+            addHistoryExp(item.price)
+
+            updateRewardSeries(item)
 
             dao.getReward(item.price, item.price/2)
         }
@@ -156,5 +166,42 @@ class RewardFragment : Fragment() {
         val maxExp = state.lvl * state.lvl *100
         if(state.amountExp + item.price/2 >= maxExp)
             dao.updateLvl(state.amountExp - maxExp, ++state.lvl)
+    }
+    fun addHistoryCoin(earn: Int){
+        val date = SimpleDateFormat("dd-MM-yy").format(Date())
+        val currentCoinHistory = dao.getCoinOfDate(date) ?: DbCoin(date = date, spent = 0)
+        Log.d("REWARD", "${currentCoinHistory.earn}")
+        currentCoinHistory.earn += earn
+        dao.setCoin(currentCoinHistory)
+        Log.d("REWARD", " += ${currentCoinHistory.earn}")
+    }
+    fun addHistoryExp(earn: Int){
+        val date = SimpleDateFormat("dd-MM-yy").format(Date())
+        val currentExpHistory = dao.getExpOfDate(date) ?: DbExp(date = date, earn = 0)
+        Log.d("REWARD", "${currentExpHistory.earn}")
+        currentExpHistory.earn += earn/2
+        dao.setExp(currentExpHistory)
+        Log.d("REWARD", " += ${currentExpHistory.earn}")
+    }
+
+    fun updateRewardSeries(item: DbReward){
+        if (item.series == -1) return
+
+        val calendar = Calendar.getInstance()
+        val formater = SimpleDateFormat("dd-MM-yy")
+        val date = formater.format(calendar.time)
+        calendar[Calendar.DAY_OF_WEEK] -= 1
+        val yesterdayDate =  formater.format(calendar.time)
+        val lastRecord = dao.getRecordOfHistoryByDate(item.id, date)
+            ?: DbHistory(date = date, rewardId = item.id, value = 0)
+        val yesterdayRecord = dao.getRecordOfHistoryByDate(item.id, yesterdayDate)
+            ?: DbHistory(date = date, rewardId = item.id, value = 0)
+        if(yesterdayRecord.value == 0)
+            dao.updateSeries(item.id, 0)
+        else
+            dao.updateSeries(item.id, ++item.series)
+
+        lastRecord.value += 1
+        dao.setRecordHistory(lastRecord)
     }
 }

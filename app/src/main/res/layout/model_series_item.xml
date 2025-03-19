@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="90dp"
-    android:layout_height="80dp"
-    android:background="@drawable/shape_item"
+    android:layout_height="50dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/click_listener"
     android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true"
     android:paddingVertical="5dp"
     android:gravity="center"
     android:layout_marginEnd="8dp">
@@ -12,16 +15,16 @@
         android:id="@+id/model_series_item_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Сон"
-        android:textSize="25sp"
+        tools:text="Сон"
+        android:textSize="18sp"
         android:textColor="@color/light"
         android:fontFamily="@font/alumni_sans"/>
     <TextView
         android:id="@+id/model_series_item_series"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="20"
-        android:textSize="30sp"
+        tools:text="20"
+        android:textSize="15sp"
         android:textColor="@color/light"
         android:fontFamily="@font/alumni_sans_light"/>
 </LinearLayout>
