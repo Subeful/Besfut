@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Besfut</string>
 
+    <string name="cancel">ОТМЕНА</string>
+    <string name="create">СОЗДАТЬ</string>
+
     <string name="store">STORE</string>
     <string name="storage">STORAGE</string>
     <string name="reward">REWARD</string>
@@ -28,6 +31,8 @@
 
     <string name="name">название</string>
     <string name="price">цена</string>
+    <string name="quantity">количество</string>
+    <string name="write_series">вести серию</string>
     <string name="category">категория</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>

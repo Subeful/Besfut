@@ -68,6 +68,8 @@ interface Dao {
         fun updateStorageItem(id: Int, newCount: Int)
         @Query("update storage set count = count - :spent where itemId = :id")
         fun spentStorageItem(id: Int, spent: Int)
+        @Query("select max(id) from storage")
+        fun getMaxStorageId(): Int
 
     //Reward
         @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -80,6 +82,8 @@ interface Dao {
         fun getRewardByName(name: String): DbReward
         @Query("update reward set series = :newSeries where id = :id")
         fun updateSeries(id: Int, newSeries: Int)
+        @Query("select max(id) from reward")
+        fun getMaxRewardId(): Int
 
     //Action
         @Query("update state set amountCoin = amountCoin - :price, coinInDay = coinInDay + :price")

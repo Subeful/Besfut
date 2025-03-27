@@ -2,11 +2,49 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@drawable/shape_item"
     tools:context=".screens.bot_sheet.SettingSheetFragment">
 
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="5dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_gravity="center"
+        android:background="@drawable/shape_sheet_grab"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
 
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/CoinText"
+            android:layout_gravity="center"
+            tools:text="Reward"/>
+
+        <ImageButton
+            android:id="@+id/btn_add_category"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_gravity="center"
+            android:background="@drawable/ic_add"/>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_items"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:layout_marginTop="10dp"
+        android:layout_marginHorizontal="20dp">
+
+    </androidx.recyclerview.widget.RecyclerView>
 </LinearLayout>

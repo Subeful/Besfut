@@ -5,6 +5,17 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+@Entity(tableName = "category",)
+data class DbCategory(
+    @ColumnInfo(name = "id")
+    var id: Int = 0,
+    @PrimaryKey
+    @ColumnInfo(name = "name")
+    var name: String = "",
+    @ColumnInfo(name = "isItems")
+    var isItems: Int
+)
+
 @Entity(tableName = "item")
 data class DbItem(
     @ColumnInfo(name = "id")
@@ -18,18 +29,10 @@ data class DbItem(
     var categoryId: Int = 0,
     @ColumnInfo(name = "quantity")
     var quantity: Int
-)
-
-@Entity(tableName = "category",)
-data class DbCategory(
-    @ColumnInfo(name = "id")
-    var id: Int = 0,
-    @PrimaryKey
-    @ColumnInfo(name = "name")
-    var name: String = "",
-    @ColumnInfo(name = "isItems")
-    var isItems: Int
-)
+): ReceiveInfoItem{
+    override fun getItemName() = name
+    override fun getItemPrice() = price
+}
 
 @Entity(tableName = "reward")
 data class DbReward(
@@ -44,7 +47,10 @@ data class DbReward(
     var categoryId: Int = 0,
     @ColumnInfo(name = "series")
     var series: Int = 0
-)
+): ReceiveInfoItem{
+    override fun getItemName() = name
+    override fun getItemPrice() = price
+}
 
 @Entity(tableName = "state")
 data class DbState(

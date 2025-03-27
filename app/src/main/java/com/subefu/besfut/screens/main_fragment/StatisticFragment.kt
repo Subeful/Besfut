@@ -2,6 +2,7 @@ package com.subefu.besfut.screens.main_fragment
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -37,6 +38,7 @@ import com.subefu.besfut.db.DbReward
 import com.subefu.besfut.db.MyDatabase
 import com.subefu.besfut.models.ModelHistory
 import com.subefu.besfut.models.ModelSeriesItem
+import com.subefu.besfut.screens.SettingsActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -54,96 +56,102 @@ class StatisticFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentStatisticBinding.inflate(inflater)
 
+        /*//графики из view
+        val lineChart = binding.chartExp
+        val list = ArrayList<Pair<String, Float>>()
+        list.apply { add(Pair("1", 1f)); add(Pair("2", 2f)); add(Pair("3", 1.8f)); add(Pair("4", 2.5f)); add(Pair("5", 3f)) }
+        lineChart.apply {
+            lineChart.tooltip.onCreateTooltip(lineChart)
+            lineChart.animation.duration = animDuration
+//            lineChart.gradientFillColors = intArrayOf(Color.parseColor("#F2C788"), Color.TRANSPARENT)
+            lineChart.animate(list)
+            lineChart.onDataPointClickListener = { index, _, _ ->
+                Toast.makeText(
+                    requireContext(),
+                     if(list.isEmpty()) "0" else list
+                        .toList().get(index).second.toString(),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+        val lineChart1 = binding.chartCoin
+        val list1 = ArrayList<Pair<String, Float>>()
+        list1.apply { add(Pair("1", 20f)); add(Pair("2", 10f)); add(Pair("3", 4f)); add(Pair("4", 18f)); add(Pair("5", 15f)) }
+        lineChart1.apply {
+            lineChart1.tooltip.onCreateTooltip(lineChart1)
+            lineChart1.animation.duration = animDuration
+//            lineChart.gradientFillColors = intArrayOf(Color.parseColor("#F2C788"), Color.TRANSPARENT)
+            lineChart1.animate(list1)
+            lineChart1.onDataPointClickListener = { index, _, _ ->
+                Toast.makeText(
+                    requireContext(),
+                    if(list1.isEmpty()) "0" else list1
+                        .toList().get(index).second.toString(),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+
+
+        val lineChart2 = binding.chartPhone
+        val list2 = ArrayList<Pair<String, Float>>()
+        list2.apply { add(Pair("1", 20f)); add(Pair("2", 10f)); add(Pair("3", 4f)); add(Pair("4", 18f)); add(Pair("5", 15f)) }
+        lineChart2.apply {
+            tooltip.onCreateTooltip(lineChart1)
+            animation.duration = animDuration
+            animate(list2)
+            onDataPointClickListener = { index, _, _ ->
+                Toast.makeText(
+                    requireContext(),
+                    if(list2.isEmpty()) "0" else list2
+                        .toList().get(index).second.toString(),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+
+
+        val listPhoneRatio = listOf(41f, 59f)
+        binding.chartLearningRatio.apply {
+            animation.duration = animDuration
+            donutTotal = 100f
+            animate(listPhoneRatio)
+            donutColors =
+                intArrayOf(resources.getColor(R.color.blue), resources.getColor(R.color.orange))
+        }
+        val lineChart3 = binding.chartLearningLine
+        val list3 = ArrayList<Pair<String, Float>>()
+        list3.apply { add(Pair("1", 20f)); add(Pair("2", 10f)); add(Pair("3", 4f)); add(Pair("4", 18f)); add(Pair("5", 15f)) }
+        lineChart3.apply {
+            tooltip.onCreateTooltip(lineChart1)
+            animation.duration = animDuration
+            animate(list3)
+            onDataPointClickListener = { index, _, _ ->
+                Toast.makeText(
+                    requireContext(),
+                    if(list3.isEmpty()) "0" else list3
+                        .toList().get(index).second.toString(),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }*/
+
         loadEmptyCharts()
-//        //графики из view
-//        val lineChart = binding.chartExp
-//        val list = ArrayList<Pair<String, Float>>()
-//        list.apply { add(Pair("1", 1f)); add(Pair("2", 2f)); add(Pair("3", 1.8f)); add(Pair("4", 2.5f)); add(Pair("5", 3f)) }
-//        lineChart.apply {
-//            lineChart.tooltip.onCreateTooltip(lineChart)
-//            lineChart.animation.duration = animDuration
-////            lineChart.gradientFillColors = intArrayOf(Color.parseColor("#F2C788"), Color.TRANSPARENT)
-//            lineChart.animate(list)
-//            lineChart.onDataPointClickListener = { index, _, _ ->
-//                Toast.makeText(
-//                    requireContext(),
-//                     if(list.isEmpty()) "0" else list
-//                        .toList().get(index).second.toString(),
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        }
-//        val lineChart1 = binding.chartCoin
-//        val list1 = ArrayList<Pair<String, Float>>()
-//        list1.apply { add(Pair("1", 20f)); add(Pair("2", 10f)); add(Pair("3", 4f)); add(Pair("4", 18f)); add(Pair("5", 15f)) }
-//        lineChart1.apply {
-//            lineChart1.tooltip.onCreateTooltip(lineChart1)
-//            lineChart1.animation.duration = animDuration
-////            lineChart.gradientFillColors = intArrayOf(Color.parseColor("#F2C788"), Color.TRANSPARENT)
-//            lineChart1.animate(list1)
-//            lineChart1.onDataPointClickListener = { index, _, _ ->
-//                Toast.makeText(
-//                    requireContext(),
-//                    if(list1.isEmpty()) "0" else list1
-//                        .toList().get(index).second.toString(),
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        }
-//
-//
-//
-//        val lineChart2 = binding.chartPhone
-//        val list2 = ArrayList<Pair<String, Float>>()
-//        list2.apply { add(Pair("1", 20f)); add(Pair("2", 10f)); add(Pair("3", 4f)); add(Pair("4", 18f)); add(Pair("5", 15f)) }
-//        lineChart2.apply {
-//            tooltip.onCreateTooltip(lineChart1)
-//            animation.duration = animDuration
-//            animate(list2)
-//            onDataPointClickListener = { index, _, _ ->
-//                Toast.makeText(
-//                    requireContext(),
-//                    if(list2.isEmpty()) "0" else list2
-//                        .toList().get(index).second.toString(),
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        }
-
-
-
-//        val listPhoneRatio = listOf(41f, 59f)
-//        binding.chartLearningRatio.apply {
-//            animation.duration = animDuration
-//            donutTotal = 100f
-//            animate(listPhoneRatio)
-//            donutColors =
-//                intArrayOf(resources.getColor(R.color.blue), resources.getColor(R.color.orange))
-//        }
-//        val lineChart3 = binding.chartLearningLine
-//        val list3 = ArrayList<Pair<String, Float>>()
-//        list3.apply { add(Pair("1", 20f)); add(Pair("2", 10f)); add(Pair("3", 4f)); add(Pair("4", 18f)); add(Pair("5", 15f)) }
-//        lineChart3.apply {
-//            tooltip.onCreateTooltip(lineChart1)
-//            animation.duration = animDuration
-//            animate(list3)
-//            onDataPointClickListener = { index, _, _ ->
-//                Toast.makeText(
-//                    requireContext(),
-//                    if(list3.isEmpty()) "0" else list3
-//                        .toList().get(index).second.toString(),
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            }
-//        }
         init()
 
+        binding.settings.setOnClickListener {
+            requireContext().startActivity(Intent(requireContext(), SettingsActivity::class.java))
+        }
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        loadAllDataOfStatistic()
+        lifecycleScope.launch(Dispatchers.Main) {
+            loadAllDataOfStatistic()
+        }
     }
 
     fun init(){
@@ -153,18 +161,16 @@ class StatisticFragment : Fragment() {
     }
 
     fun loadAllDataOfStatistic(){
-        lifecycleScope.launch(Dispatchers.IO) {
-            loadDataOfExp()
-            loadDataOfCoin()
+        loadDataOfExp()
+        loadDataOfCoin()
 
-            loadSeries()
+        loadSeries()
 
-            loadCoinRatio()
-            loadIndicateReward()
+        loadCoinRatio()
+        loadIndicateReward()
 
-            loadLearnData()
-            loadTopReward()
-        }
+        loadLearnData()
+        loadTopReward()
     }
 
     fun loadEmptyCharts(){
@@ -208,21 +214,23 @@ class StatisticFragment : Fragment() {
     }
 
     fun loadDataOfExp(){
-        val historyOfCoins = dao.getExpOfMonth()
-        val state = dao.getState()
-        val lvl = state.lvl
-        val maxExp = lvl*lvl*100
-        val earn = historyOfCoins.sumOf { x -> x.earn }
-        val average = if(historyOfCoins.size != 0) earn / historyOfCoins.size else 0
+        lifecycleScope.launch(Dispatchers.IO) {
+            val historyOfCoins = dao.getExpOfMonth()
+            val state = dao.getState()
+            val lvl = state.lvl
+            val maxExp = lvl*lvl*100
+            val earn = historyOfCoins.sumOf { x -> x.earn }
+            val average = if(historyOfCoins.size != 0) earn / historyOfCoins.size else 0
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            setExpChart(historyOfCoins)
-            binding.progressExpStatistic.max = maxExp
-            binding.progressExpStatistic.progress = state.amountExp
-            binding.progressExpValueStatistic.text = "${state.amountExp}/$maxExp EXP"
-            binding.expLvlStat.text = "$lvl LVL"
-            binding.expEarn.text = "заработано: $earn"
-            binding.expAveage.text = "среднее: $average"
+            launch(Dispatchers.Main) {
+                setExpChart(historyOfCoins)
+                binding.progressExpStatistic.max = maxExp
+                binding.progressExpStatistic.progress = state.amountExp
+                binding.progressExpValueStatistic.text = "${state.amountExp}/$maxExp EXP"
+                binding.expLvlStat.text = "$lvl LVL"
+                binding.expEarn.text = "заработано: $earn"
+                binding.expAveage.text = "среднее: $average"
+            }
         }
     }
     fun setExpChart(historyOfCoins: List<DbExp>){
@@ -242,15 +250,17 @@ class StatisticFragment : Fragment() {
         }
     }
     fun loadDataOfCoin(){
-        val historyOfCoin = dao.getCoinOfMonth()
-        val all = historyOfCoin.sumOf { x -> x.earn }
-        val spent = historyOfCoin.sumOf { x -> x.spent }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val historyOfCoin = dao.getCoinOfMonth()
+            val all = historyOfCoin.sumOf { x -> x.earn }
+            val spent = historyOfCoin.sumOf { x -> x.spent }
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            setCoinChart(historyOfCoin)
-            binding.coinAll.text = all.toString()
-            binding.coinEarn.text = "заработано: $all"
-            binding.coinSpent.text = "потрачено: $spent"
+            launch(Dispatchers.Main) {
+                setCoinChart(historyOfCoin)
+                binding.coinAll.text = all.toString()
+                binding.coinEarn.text = "заработано: $all"
+                binding.coinSpent.text = "потрачено: $spent"
+            }
         }
     }
     fun setCoinChart(historyOfCoin: List<DbCoin>){
@@ -271,17 +281,21 @@ class StatisticFragment : Fragment() {
     }
 
     fun loadSeries(){
-        val series = dao.getRewardSeries()
-        val seriesModels = series
-            .map { x -> ModelSeriesItem(x.id, x.name, x.series) }
-            .sortedByDescending { x -> x.series }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val series = dao.getRewardSeries()
+            val seriesModels = series
+                .map { x -> ModelSeriesItem(x.id, x.name, x.series) }
+                .sortedByDescending { x -> x.series }
 
-        binding.rvSeries.adapter = SeriesAdapter(
-            listItems = seriesModels,
-            bindView = {view, item, position, size ->
-                bindView(view, item, position, size)
+            launch(Dispatchers.Main) {
+                binding.rvSeries.adapter = SeriesAdapter(
+                    listItems = seriesModels,
+                    bindView = {view, item, position, size ->
+                        bindView(view, item, position, size)
+                    }
+                )
             }
-        )
+        }
     }
     fun bindView(view: View, item: ModelSeriesItem, position: Int, size: Int){
         view.findViewById<TextView>(R.id.model_series_item_name).text = item.name
@@ -363,12 +377,14 @@ class StatisticFragment : Fragment() {
     }
 
     fun loadCoinRatio(){
-        val data = dao.getCoinForAllTime()
-        val earn = data.sumOf { x -> x.earn }.toFloat()
-        val spent = data.sumOf { x -> x.spent }.toFloat()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val data = dao.getCoinForAllTime()
+            val earn = data.sumOf { x -> x.earn }.toFloat()
+            val spent = data.sumOf { x -> x.spent }.toFloat()
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            setRatioCoinDonutChart(listOf(earn, spent))
+            launch(Dispatchers.Main) {
+                setRatioCoinDonutChart(listOf(earn, spent))
+            }
         }
     }
     fun setRatioCoinDonutChart(data: List<Float>){
@@ -382,18 +398,20 @@ class StatisticFragment : Fragment() {
     }
 
     fun loadIndicateReward(){
-        val item = dao.getItemByName("Телефон")
-        val history = dao.getStoreHistoryOfItem(item.id)
-        val data = history.map { x -> Pair(x.date, x.value.toFloat()) }
-        val all = data.sumOf { x -> x.second.toInt() }
-        val average = all/data.size.toFloat()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val item = dao.getItemByName("Телефон")
+            val history = dao.getStoreHistoryOfItem(item.id)
+            val data = history.map { x -> Pair(x.date, x.value.toFloat()) }
+            val all = data.sumOf { x -> x.second.toInt() }
+            val average = all/data.size.toFloat()
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            binding.nameIndicateChart.text = item.name.uppercase()
-            binding.indicateAll.text = "всего: $all"
-            binding.indicateAverage.text = "средне: $average"
+            launch(Dispatchers.Main) {
+                binding.nameIndicateChart.text = item.name.uppercase()
+                binding.indicateAll.text = "всего: $all"
+                binding.indicateAverage.text = "средне: $average"
 
-            setIndicateChart(data)
+                setIndicateChart(data)
+            }
         }
     }
     fun setIndicateChart(data: List<Pair<String, Float>>){
@@ -407,27 +425,29 @@ class StatisticFragment : Fragment() {
     }
 
     fun loadLearnData(){
-        val reward = dao.getRewardByName("Android")
-        val history = dao.getHistoryOfReward(reward.id)
-        val data = history.map { x -> Pair(x.date, x.value.toFloat()) }
-        val allEarn = data.sumOf { x -> x.second.toInt() }
-        val average = allEarn/data.size.toFloat()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val reward = dao.getRewardByName("Android")
+            val history = dao.getHistoryOfReward(reward.id)
+            val data = history.map { x -> Pair(x.date, x.value.toFloat()) }
+            val allEarn = data.sumOf { x -> x.second.toInt() }
+            val average = allEarn/data.size.toFloat()
 
-        val activeDay = history.size
-        val skipId = listOf(
-            dao.getItemByName("Выходной"),
-            dao.getItemByName("Пропуск занятия"),
-        )
-        var skipDay = dao.getStoreHistoryOfItem(skipId[0].id).map { x -> x.value }.sum()
-        skipDay += dao.getStoreHistoryOfItem(skipId[1].id).map { x -> x.value }.sum()
+            val activeDay = history.size
+            val skipId = listOf(
+                dao.getItemByName("Выходной"),
+                dao.getItemByName("Пропуск занятия"),
+            )
+            var skipDay = dao.getStoreHistoryOfItem(skipId[0].id).map { x -> x.value }.sum()
+            skipDay += dao.getStoreHistoryOfItem(skipId[1].id).map { x -> x.value }.sum()
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            binding.nameLearnChart.text = reward.name.uppercase()
-            binding.learnEarn.text = "всего: $allEarn"
-            binding.learnAverage.text = "среднее: $average"
+            launch(Dispatchers.Main) {
+                binding.nameLearnChart.text = reward.name.uppercase()
+                binding.learnEarn.text = "всего: $allEarn"
+                binding.learnAverage.text = "среднее: $average"
 
-            setLearnChart(data)
-            setLearnRatioChart(listOf(activeDay.toFloat(), skipDay.toFloat()))
+                setLearnChart(data)
+                setLearnRatioChart(listOf(activeDay.toFloat(), skipDay.toFloat()))
+            }
         }
     }
     fun setLearnChart(data: List<Pair<String, Float>>){
@@ -450,20 +470,22 @@ class StatisticFragment : Fragment() {
     }
 
     fun loadTopReward(){
-        val topRewards = dao.getBestReward()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val topRewards = dao.getBestReward()
 
-        lifecycleScope.launch(Dispatchers.Main) {
-            if(topRewards.size >= 1){
-                binding.topReward1Name.text = topRewards[0].name
-                binding.topReward1Exp.text = topRewards[0].result.toString()
-            }
-            if(topRewards.size >= 2){
-                binding.topReward2Name.text = topRewards[1].name
-                binding.topReward2Exp.text = topRewards[1].result.toString()
-            }
-            if(topRewards.size == 3){
-                binding.topReward3Name.text = topRewards[2].name
-                binding.topReward3Exp.text = topRewards[2].result.toString()
+            launch(Dispatchers.Main) {
+                if(topRewards.size >= 1){
+                    binding.topReward1Name.text = topRewards[0].name
+                    binding.topReward1Exp.text = topRewards[0].result.toString()
+                }
+                if(topRewards.size >= 2){
+                    binding.topReward2Name.text = topRewards[1].name
+                    binding.topReward2Exp.text = topRewards[1].result.toString()
+                }
+                if(topRewards.size == 3){
+                    binding.topReward3Name.text = topRewards[2].name
+                    binding.topReward3Exp.text = topRewards[2].result.toString()
+                }
             }
         }
     }
