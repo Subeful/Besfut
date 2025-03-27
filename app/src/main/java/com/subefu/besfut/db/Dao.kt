@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.subefu.besfut.models.ModelHistory
 import com.subefu.besfut.models.ModelResponse
 import kotlinx.coroutines.flow.Flow
@@ -28,18 +29,20 @@ interface Dao {
         fun getReminderCoinInDay(): Int
 
     //Item
-        @Insert(onConflict = OnConflictStrategy.IGNORE)
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
         fun createItem(item: DbItem)
         @Insert(onConflict = OnConflictStrategy.IGNORE)
         fun createItems(items: List<DbItem>)
         @Query("select max(id) from item")
         fun getMaxIdFromItem(): Int
-        @Query("select * from item where categoryId = :targetId")
-        fun getItemsByCategoryId(targetId: Int): List<DbItem>
+        @Query("select id from item where name = :name")
+        fun getItemIdByName(name: String): Int
         @Query("select * from item where id = :targetId")
         fun getItemById(targetId: Int): DbItem
         @Query("select * from item where name = :name")
         fun getItemByName(name: String): DbItem
+        @Query("select * from item where categoryId = :targetId")
+        fun getItemsByCategoryId(targetId: Int): List<DbItem>
         @Query("select * from item")
         fun getAllItems(): List<DbItem>
 
@@ -58,6 +61,8 @@ interface Dao {
         fun getCategoryNameById(id: Int): String
 
     //Storage
+        @Query("update storage set name = :name where id = :id")
+        fun updateStorageName(id: Int, name: String)
         @Insert(onConflict = OnConflictStrategy.IGNORE)
         fun createRecordInStorage(item: DbStorageItem)
         @Insert(onConflict = OnConflictStrategy.IGNORE)
@@ -70,9 +75,11 @@ interface Dao {
         fun spentStorageItem(id: Int, spent: Int)
         @Query("select max(id) from storage")
         fun getMaxStorageId(): Int
+        @Query("select id from reward where name = :name")
+        fun getRewardIdByName(name: String): Int
 
     //Reward
-        @Insert(onConflict = OnConflictStrategy.IGNORE)
+        @Insert(onConflict = OnConflictStrategy.REPLACE)
         fun createReward(reward: DbReward)
         @Insert(onConflict = OnConflictStrategy.IGNORE)
         fun createRewards(rewards: List<DbReward>)
@@ -80,6 +87,8 @@ interface Dao {
         fun getRewardByCategory(categoryId: Int): List<DbReward>
         @Query("select * from reward where name = :name")
         fun getRewardByName(name: String): DbReward
+        @Query("select * from reward where id = :id")
+        fun getRewardById(id: Int): DbReward
         @Query("update reward set series = :newSeries where id = :id")
         fun updateSeries(id: Int, newSeries: Int)
         @Query("select max(id) from reward")

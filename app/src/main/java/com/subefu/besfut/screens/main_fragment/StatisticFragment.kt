@@ -56,88 +56,6 @@ class StatisticFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentStatisticBinding.inflate(inflater)
 
-        /*//графики из view
-        val lineChart = binding.chartExp
-        val list = ArrayList<Pair<String, Float>>()
-        list.apply { add(Pair("1", 1f)); add(Pair("2", 2f)); add(Pair("3", 1.8f)); add(Pair("4", 2.5f)); add(Pair("5", 3f)) }
-        lineChart.apply {
-            lineChart.tooltip.onCreateTooltip(lineChart)
-            lineChart.animation.duration = animDuration
-//            lineChart.gradientFillColors = intArrayOf(Color.parseColor("#F2C788"), Color.TRANSPARENT)
-            lineChart.animate(list)
-            lineChart.onDataPointClickListener = { index, _, _ ->
-                Toast.makeText(
-                    requireContext(),
-                     if(list.isEmpty()) "0" else list
-                        .toList().get(index).second.toString(),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-        val lineChart1 = binding.chartCoin
-        val list1 = ArrayList<Pair<String, Float>>()
-        list1.apply { add(Pair("1", 20f)); add(Pair("2", 10f)); add(Pair("3", 4f)); add(Pair("4", 18f)); add(Pair("5", 15f)) }
-        lineChart1.apply {
-            lineChart1.tooltip.onCreateTooltip(lineChart1)
-            lineChart1.animation.duration = animDuration
-//            lineChart.gradientFillColors = intArrayOf(Color.parseColor("#F2C788"), Color.TRANSPARENT)
-            lineChart1.animate(list1)
-            lineChart1.onDataPointClickListener = { index, _, _ ->
-                Toast.makeText(
-                    requireContext(),
-                    if(list1.isEmpty()) "0" else list1
-                        .toList().get(index).second.toString(),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
-
-
-        val lineChart2 = binding.chartPhone
-        val list2 = ArrayList<Pair<String, Float>>()
-        list2.apply { add(Pair("1", 20f)); add(Pair("2", 10f)); add(Pair("3", 4f)); add(Pair("4", 18f)); add(Pair("5", 15f)) }
-        lineChart2.apply {
-            tooltip.onCreateTooltip(lineChart1)
-            animation.duration = animDuration
-            animate(list2)
-            onDataPointClickListener = { index, _, _ ->
-                Toast.makeText(
-                    requireContext(),
-                    if(list2.isEmpty()) "0" else list2
-                        .toList().get(index).second.toString(),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
-
-
-        val listPhoneRatio = listOf(41f, 59f)
-        binding.chartLearningRatio.apply {
-            animation.duration = animDuration
-            donutTotal = 100f
-            animate(listPhoneRatio)
-            donutColors =
-                intArrayOf(resources.getColor(R.color.blue), resources.getColor(R.color.orange))
-        }
-        val lineChart3 = binding.chartLearningLine
-        val list3 = ArrayList<Pair<String, Float>>()
-        list3.apply { add(Pair("1", 20f)); add(Pair("2", 10f)); add(Pair("3", 4f)); add(Pair("4", 18f)); add(Pair("5", 15f)) }
-        lineChart3.apply {
-            tooltip.onCreateTooltip(lineChart1)
-            animation.duration = animDuration
-            animate(list3)
-            onDataPointClickListener = { index, _, _ ->
-                Toast.makeText(
-                    requireContext(),
-                    if(list3.isEmpty()) "0" else list3
-                        .toList().get(index).second.toString(),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }*/
-
         loadEmptyCharts()
         init()
 
@@ -399,7 +317,7 @@ class StatisticFragment : Fragment() {
 
     fun loadIndicateReward(){
         lifecycleScope.launch(Dispatchers.IO) {
-            val item = dao.getItemByName("Телефон")
+            val item = dao.getItemById(1)
             val history = dao.getStoreHistoryOfItem(item.id)
             val data = history.map { x -> Pair(x.date, x.value.toFloat()) }
             val all = data.sumOf { x -> x.second.toInt() }
@@ -426,7 +344,7 @@ class StatisticFragment : Fragment() {
 
     fun loadLearnData(){
         lifecycleScope.launch(Dispatchers.IO) {
-            val reward = dao.getRewardByName("Android")
+            val reward = dao.getRewardById(8)
             val history = dao.getHistoryOfReward(reward.id)
             val data = history.map { x -> Pair(x.date, x.value.toFloat()) }
             val allEarn = data.sumOf { x -> x.second.toInt() }
@@ -434,8 +352,8 @@ class StatisticFragment : Fragment() {
 
             val activeDay = history.size
             val skipId = listOf(
-                dao.getItemByName("Выходной"),
-                dao.getItemByName("Пропуск занятия"),
+                dao.getItemById(6),
+                dao.getItemById(7),
             )
             var skipDay = dao.getStoreHistoryOfItem(skipId[0].id).map { x -> x.value }.sum()
             skipDay += dao.getStoreHistoryOfItem(skipId[1].id).map { x -> x.value }.sum()

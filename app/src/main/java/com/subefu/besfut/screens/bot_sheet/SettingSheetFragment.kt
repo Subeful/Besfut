@@ -15,6 +15,8 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.subefu.besfut.R
 import com.subefu.besfut.adapters.GroupAdapter
 import com.subefu.besfut.adapters.ItemAdapter
@@ -35,11 +37,13 @@ import com.subefu.besfut.utils.BindViewHolder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDialogFragment() {
 
     lateinit var binding: FragmentSettingSheetBinding
     lateinit var dao: Dao
+    var dialog: AlertDialog? = null
     val mode = if(type == "items") 1 else 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -52,6 +56,12 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
         }
 
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        dialog?.dismiss()
+        dialog = null
     }
 
     fun showAlertCreateCategory(){
@@ -77,6 +87,9 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
             val category = DbCategory(currentId, name, mode)
             dao.createCategory(category)
             Log.d("Setting answer", "${name}")
+            withContext(Dispatchers.Main){
+                loadItemsInRv()
+            }
         }
     }
 
@@ -155,7 +168,6 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
 
         lifecycleScope.launch(Dispatchers.IO) {
             categories.addAll(dao.getAllCategories(mode).map{x -> x.name})
-
             launch(Dispatchers.Main) {
                 showAddAlert(categories)
             }
@@ -163,7 +175,7 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
     }
     fun showAddAlert(categories: List<String>){
         val binding = AlertCreateItemBinding.inflate(LayoutInflater.from(requireContext()))
-        val dialog = AlertDialog.Builder(requireContext()).setView(binding.root).create()
+        dialog = AlertDialog.Builder(requireContext()).setView(binding.root).create()
 
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, categories)
         val autoCompleteTextView = binding.editCategory.findViewById<AutoCompleteTextView>(R.id.edit_category)
@@ -176,7 +188,7 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
         else
             binding.editQuantity.visibility = View.GONE
 
-        binding.btnCancel.setOnClickListener { dialog.cancel() }
+        binding.btnCancel.setOnClickListener { dialog?.cancel() }
         binding.btnCreate.setOnClickListener {
             val name = binding.editName.text.toString().trim()
             val price = binding.editPrice.text.toString().trim()
@@ -205,11 +217,11 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
                 createItem(ReceiveObj.ReceiveReward(name, price.toInt(), category, writeSeries))
             }
 
-            dialog.cancel()
+            dialog?.cancel()
         }
 
-        dialog.getWindow()?.setBackgroundDrawableResource(R.drawable.shape_item)
-        dialog.show()
+        dialog?.getWindow()?.setBackgroundDrawableResource(R.drawable.shape_item)
+        dialog?.show()
     }
     fun createItem(param: ReceiveObj){
         lifecycleScope.launch(Dispatchers.IO) {
@@ -235,30 +247,125 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
         }
     }
 
-    fun getItemClickListener(items: List<ModelGroup<T>>) = { x: Int, y: Int ->
-        val item = items[x].listItems[y]
-        showEditAlert(item)
-    }
-
-    fun showEditAlert(item: T){
-        val binding = ModelItemBinding.inflate(LayoutInflater.from(requireContext()))
-        Log.d("Settings", "show alert")
-        /*val obj = when(item){
-            is DbItem -> dao.getItemByName(item.name)
-            is DbReward -> dao.getRewardByName(item.name)
-            else -> {
-                throw NullPointerException("generic object is don`t cast to DbReward or DbItem")
+    fun getItemClickListener(items: List<ModelGroup<T>>): (Int, Int)->Unit
+        = { x: Int, y: Int ->
+            val item = items[x].listItems[y]
+            lifecycleScope.launch(Dispatchers.IO) {
+                val categories = mutableListOf<String>()
+                categories.addAll(dao.getAllCategories(mode).map { x -> x.name })
+                withContext(Dispatchers.Main) {
+                    showEditAlert(item, categories)
+                }
             }
-        }*/
-        /*val obj = when(item){
-            is DbItem -> dao.getItemByName(item.name)
-            is DbReward -> dao.getRewardByName(item.name)
-            else -> { throw NullPointerException("generic object is don`t cast to DbReward or DbItem") }
-        }*/
-        binding.itemName.text = item.getItemName()
-        binding.itemPrice.text = item.getItemPrice().toString()
+        }
 
-        val dialog = AlertDialog.Builder(requireContext()).setView(binding.root).show()
+    fun showEditAlert(item: T, categories: List<String>){
+        val binding = AlertCreateItemBinding.inflate(LayoutInflater.from(requireContext()))
+        dialog = AlertDialog.Builder(requireContext()).setView(binding.root).create()
+
+        val adapter = ArrayAdapter(requireContext(), R.layout.list_item, categories)
+        val autoCompleteTextView = binding.editCategory.findViewById<AutoCompleteTextView>(R.id.edit_category)
+        autoCompleteTextView.setAdapter(adapter)
+
+        loadDataOfItem(binding, item)
+
+        binding.btnCancel.setOnClickListener { dialog?.cancel() }
+        binding.btnCreate.setOnClickListener {
+            val name = binding.editName.text.toString().trim()
+            val price = binding.editPrice.text.toString().trim()
+            val category = binding.editCategory.text.toString()
+
+            //check for null fields
+            if(name.isEmpty() || price.isEmpty() || category.isEmpty()){
+                Toast.makeText(requireContext(), "Заполните все поля", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if(price.toIntOrNull() == null){
+                Toast.makeText(requireContext(), "Цена - целое число", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if(type == "items"){
+                val quantity = binding.editQuantity.text.toString().trim()
+                if(quantity.isEmpty() || (quantity.toIntOrNull() == null)) {
+                    Toast.makeText(requireContext(), "количество - целое число", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                val currentId = (item as DbItem).id
+                updateItem(ReceiveObj.ReceiveItem(name, price.toInt(), category, quantity.toInt(), currentId))
+            }
+            else{
+                val writeSeries = if(binding.checkSeries.isChecked) 0 else -1
+                val currentId = (item as DbReward).id
+                updateItem(ReceiveObj.ReceiveReward(name, price.toInt(), category, writeSeries, currentId))
+            }
+
+            dialog?.cancel()
+        }
+
+        dialog?.getWindow()?.setBackgroundDrawableResource(R.drawable.shape_item)
+        dialog?.show()
+    }
+    fun loadDataOfItem(binding: AlertCreateItemBinding, item: T){
+        binding.textTitle.text = type.uppercase()
+        lifecycleScope.launch(Dispatchers.IO) {
+            val categories = dao.getAllCategories(mode).map { x->x.name }
+            when(item){
+                is DbItem -> {
+                    val item = dao.getItemByName(item.name)
+                    val category = dao.getCategoryNameById(item.categoryId)
+                    withContext(Dispatchers.Main){
+                        binding.editName.setText(item.name)
+                        binding.editPrice.setText(item.price.toString())
+                        binding.editQuantity.setText(item.quantity.toString())
+                        binding.editCategory.
+                        setText(category)
+
+                        binding.checkSeries.visibility = View.GONE
+                    }
+                }
+                is DbReward -> {
+                    val reward = dao.getRewardByName(item.name)
+                    val category = dao.getCategoryNameById(item.categoryId)
+                    withContext(Dispatchers.Main){
+                        binding.editName.setText(reward.name)
+                        binding.editPrice.setText(reward.price.toString())
+                        binding.editCategory.setText(category)
+                        binding.checkSeries.isChecked = reward.series != -1
+
+                        binding.editQuantity.visibility = View.GONE
+                    }
+                }
+                else -> { throw NullPointerException("generic object is don`t cast to DbReward or DbItem") }
+            }
+            withContext(Dispatchers.Main){
+                val adapter = ArrayAdapter(requireContext(), R.layout.list_item, categories)
+                val autoCompleteTextView = binding.editCategory.findViewById<AutoCompleteTextView>(R.id.edit_category)
+                autoCompleteTextView.setAdapter(adapter)
+            }
+        }
+    }
+    fun updateItem(param: ReceiveObj){
+        lifecycleScope.launch(Dispatchers.IO) {
+            when(param){
+                is ReceiveObj.ReceiveItem -> {
+                    val categoryId = dao.getCategoryIdByName(param.categoryName)
+                    val currentItemId = param.id
+                    val item = DbItem(currentItemId, param.name, param.price, categoryId, param.quantity)
+                    dao.createItem(item)
+
+                    dao.updateStorageName(currentItemId, param.name)
+                }
+                is ReceiveObj.ReceiveReward -> {
+                    val categoryId = dao.getCategoryIdByName(param.categoryName)
+                    val currentRewardId = param.id
+                    val item = DbReward(currentRewardId, param.name, param.price, categoryId, param.isSeries)
+                    dao.createReward(item)
+                }
+            }
+
+            loadItemsInRv()
+        }
     }
 
 }

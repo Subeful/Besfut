@@ -7,9 +7,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "category",)
 data class DbCategory(
+    @PrimaryKey
     @ColumnInfo(name = "id")
     var id: Int = 0,
-    @PrimaryKey
     @ColumnInfo(name = "name")
     var name: String = "",
     @ColumnInfo(name = "isItems")
@@ -18,9 +18,9 @@ data class DbCategory(
 
 @Entity(tableName = "item")
 data class DbItem(
+    @PrimaryKey
     @ColumnInfo(name = "id")
     var id: Int = 0,
-    @PrimaryKey
     @ColumnInfo(name = "name")
     var name: String = "",
     @ColumnInfo(name = "price")
@@ -36,9 +36,9 @@ data class DbItem(
 
 @Entity(tableName = "reward")
 data class DbReward(
+    @PrimaryKey
     @ColumnInfo(name = "id")
     var id: Int = 0,
-    @PrimaryKey
     @ColumnInfo(name = "name")
     var name: String = "",
     @ColumnInfo(name = "price")
