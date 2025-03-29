@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@drawable/shape_item"
-    tools:context=".screens.bot_sheet.SettingSheetFragment">
+    tools:context=".screens.settings.bot_sheet.SettingSheetFragment">
 
     <ImageView
         android:layout_width="50dp"

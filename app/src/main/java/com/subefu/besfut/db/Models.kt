@@ -56,23 +56,25 @@ data class DbReward(
 data class DbState(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
+
     @ColumnInfo(name = "amountCoin")
     var amountCoin: Int = 0,
-    @ColumnInfo(name = "amountExp")
-    var amountExp: Int = 0,
-    @ColumnInfo(name = "lvl")
-    var lvl: Int = 1,
-
     @ColumnInfo(name = "coinInDay")
     var coinInDay: Int = 0,
     @ColumnInfo(name = "coinLimitDay")
     var coinLimitDay: Int = 100,
 
+    @ColumnInfo(name = "amountExp")
+    var amountExp: Int = 0,
+    @ColumnInfo(name = "lvl")
+    var lvl: Int = 1,
+
     @ColumnInfo(name = "activeInDay")
     var activeInDay: Int = 0,
     @ColumnInfo(name = "activeLimitDay")
     var activeLimitDay: Int = 100,
-
+    @ColumnInfo(name = "goalAchieved")
+    var goalAchieved: Int = 0,
     @ColumnInfo(name = "currentDay")
     var currentDay: String = ""
     )

@@ -1,4 +1,4 @@
-package com.subefu.besfut.screens.bot_sheet
+package com.subefu.besfut.screens.settings.bot_sheet
 
 import android.os.Bundle
 import android.util.Log
@@ -10,20 +10,15 @@ import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.collection.objectListOf
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import com.subefu.besfut.R
 import com.subefu.besfut.adapters.GroupAdapter
 import com.subefu.besfut.adapters.ItemAdapter
 import com.subefu.besfut.databinding.AlertCreateCategoryBinding
 import com.subefu.besfut.databinding.AlertCreateItemBinding
 import com.subefu.besfut.databinding.FragmentSettingSheetBinding
-import com.subefu.besfut.databinding.ModelItemBinding
 import com.subefu.besfut.db.Dao
 import com.subefu.besfut.db.DbCategory
 import com.subefu.besfut.db.DbItem
@@ -35,7 +30,6 @@ import com.subefu.besfut.models.ModelGroup
 import com.subefu.besfut.models.ReceiveObj
 import com.subefu.besfut.utils.BindViewHolder
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -155,7 +149,7 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
 
     fun createItemAdapter(items: List<T>, groupPosition: Int, listener: (out: Int, inn: Int) -> Unit) =
         ItemAdapter(
-            layoutId = R.layout.model_settings_item,
+            itemLayoutRes = R.layout.model_settings_item,
             listItem = items,
             bindView = { view, item ->
                 view.findViewById<TextView>(R.id.set_item_name).text = item.getItemName()
@@ -221,6 +215,7 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
         }
 
         dialog?.getWindow()?.setBackgroundDrawableResource(R.drawable.shape_item)
+        dialog?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
         dialog?.show()
     }
     fun createItem(param: ReceiveObj){
@@ -304,6 +299,7 @@ class SettingSheetFragment<T: ReceiveInfoItem>(val type: String) : BottomSheetDi
         }
 
         dialog?.getWindow()?.setBackgroundDrawableResource(R.drawable.shape_item)
+        dialog?.window?.decorView?.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
         dialog?.show()
     }
     fun loadDataOfItem(binding: AlertCreateItemBinding, item: T){

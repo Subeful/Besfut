@@ -17,6 +17,10 @@ interface Dao {
         fun createState(state: DbState)
         @Query("select count(id) from state")
         fun checkExistConfig(): Int
+        @Query("select goalAchieved = 0 from state")
+        fun checkGoalAchieved(): Boolean
+        @Query("update state set goalAchieved = 1")
+        fun obtainGoalAchieved()
         @Query("select * from state")
         fun getCurrentState(): Flow<DbState>
         @Query("select * from state")

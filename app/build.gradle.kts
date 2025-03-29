@@ -53,7 +53,8 @@ dependencies {
     implementation("androidx.room:room-runtime:2.5.0")
     implementation("androidx.room:room-ktx:2.5.0")
     kapt("androidx.room:room-compiler:2.5.0")
-//    kapt("org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.5.0")
+
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

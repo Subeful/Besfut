@@ -1,18 +1,14 @@
-package com.subefu.besfut.screens
+package com.subefu.besfut.screens.settings
 
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.subefu.besfut.R
 import com.subefu.besfut.databinding.ActivitySettingsBinding
 import com.subefu.besfut.db.DbItem
 import com.subefu.besfut.db.DbReward
 import com.subefu.besfut.db.ReceiveInfoItem
-import com.subefu.besfut.screens.bot_sheet.SettingSheetFragment
+import com.subefu.besfut.screens.settings.bot_sheet.SettingSheetFragment
 
 class SettingsActivity : AppCompatActivity() {
     lateinit var binding: ActivitySettingsBinding

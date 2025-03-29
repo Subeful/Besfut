@@ -10,9 +10,10 @@ import com.subefu.besfut.databinding.ModelGroupBinding
 import com.subefu.besfut.utils.BindViewHolder
 
 
-class GroupAdapter<T>(val listItem: List<T>,
-                      val bindView: BindViewHolder<T>,
-                      val listener: (Int, Int) -> Unit
+class GroupAdapter<T>(
+    val listItem: List<T>,
+    val bindView: BindViewHolder<T>,
+    val listener: (Int, Int) -> Unit
 ): RecyclerView.Adapter<GroupAdapter<T>.GroupViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupViewHolder {
@@ -21,8 +22,7 @@ class GroupAdapter<T>(val listItem: List<T>,
     }
 
     override fun onBindViewHolder(holder: GroupViewHolder, position: Int) {
-        val item = listItem[position]
-        holder.bind(item, position)
+        holder.bind(listItem[position], position)
     }
 
     override fun getItemCount() = listItem.size

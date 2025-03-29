@@ -31,85 +31,75 @@ import kotlinx.coroutines.withContext
 import kotlin.streams.toList
 
 class StorageFragment : Fragment() {
-    lateinit var binding: FragmentStorageBinding
-    lateinit var rv: RecyclerView
+    var _binding: FragmentStorageBinding? = null
+    val binding get() = _binding!!
 
     lateinit var dao: Dao
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentStorageBinding.inflate(layoutInflater)
-
-        init()
-
+        _binding = FragmentStorageBinding.inflate(layoutInflater)
+        dao = MyDatabase.getDb(binding.root.context).getDao()
         return binding.root
     }
 
-    fun init(){
-        dao = MyDatabase.getDb(binding.root.context).getDao()
-
-        loadItems()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        observeItems()
     }
 
-    fun loadItems(){
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
+
+    fun observeItems(){
         dao.getAllRemindingItems().asLiveData().observe(viewLifecycleOwner){
-            if (it == null) return@observe
+            it ?: return@observe
+            loadItems(it)
+        }
+    }
+    fun loadItems(items: List<DbStorageItem>) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val groupedItems = items.groupBy { item ->
+                dao.getCategoryNameById(item.groupId) ?: "Unknown"
+            }.map { (category, goods) ->
+                ModelGroupStorage(category, goods)
+            }
 
-            val listCategory = HashMap<String, MutableList<DbStorageItem>>()
-            val listItem = ArrayList<ModelGroupStorage>()
-
-            lifecycleScope.launch(Dispatchers.IO) {
-                for(item in it){
-                    val categoryName = dao.getCategoryNameById(item.groupId)
-                    Log.d("STORAGE", "category name - $categoryName")
-                    if (listCategory.containsKey(categoryName)){
-                        listCategory[categoryName]!!.add(item)
-                        Log.d("STORAGE", "category exist - ${item.name}")
-                    }
-                    else {
-                        listCategory.put(categoryName, mutableListOf(item))
-                        Log.d("STORAGE", "category not exist - ${item.name}")
-                    }
-                }
-                listCategory.forEach { category, goods ->
-                    listItem.add(ModelGroupStorage(category, goods))
-                }
-
-                lifecycleScope.launch(Dispatchers.Main) {
-                    binding.rvGroupStorage.adapter = createGroupAdapter(listItem)
-                }
+            withContext(Dispatchers.Main) {
+                binding.rvGroupStorage.adapter = createGroupAdapter(groupedItems)
             }
         }
     }
+
     fun createGroupAdapter(goods: List<ModelGroupStorage>): GroupAdapter<ModelGroupStorage> {
         return GroupAdapter(
-            goods,
-            object : BindViewHolder<ModelGroupStorage> {
-                override fun bind(view: View, item: ModelGroupStorage, position: Int, listener: (out: Int, inn: Int) -> Unit) {
-                    bindGroupView(view, item, position, listener)
-                }
-            },
-            { out, inn ->
+            listItem = goods,
+            bindView = bindGroupView(),
+            listener = { out, inn ->
                 val item = goods[out].listItems[inn]
                 spentItem(item)
-                Log.d("INFO", "${item.name} - ${item.count}")
             }
         )
     }
-    fun bindGroupView(view: View, item: ModelGroupStorage, position: Int, listener: (out: Int, inn: Int) -> Unit) {
-        view.findViewById<TextView>(R.id.group_name).text = item.name
-        val rv = view.findViewById<RecyclerView>(R.id.rv_items)
-        rv.layoutManager = GridLayoutManager(requireContext(), 2)
-        rv.adapter = createItemAdapter(item.listItems, position, listener)
+    fun bindGroupView() = object : BindViewHolder<ModelGroupStorage> {
+        override fun bind(view: View, item: ModelGroupStorage, position: Int, listener: (out: Int, inn: Int) -> Unit) {
+            view.findViewById<TextView>(R.id.group_name).text = item.name
+            val rv = view.findViewById<RecyclerView>(R.id.rv_items)
+            rv.layoutManager = GridLayoutManager(requireContext(), 2)
+            rv.adapter = createItemAdapter(item.listItems, position, listener)
+        }
     }
-    fun createItemAdapter(items: List<DbStorageItem>, groupPosition: Int, listener: (out: Int, inn: Int) -> Unit): ItemAdapter<DbStorageItem> {
+    fun createItemAdapter(items: List<DbStorageItem>, groupPosition: Int, listener: (out: Int, inn: Int) -> Unit)
+    : ItemAdapter<DbStorageItem> {
         return ItemAdapter(
-            R.layout.model_storage_item,
-            items,
-            { view, item ->
+            itemLayoutRes = R.layout.model_storage_item,
+            listItem = items,
+            bindView = { view, item ->
                 view.findViewById<TextView>(R.id.item_storage_name).text = item.name
                 view.findViewById<TextView>(R.id.item_storage_price).text = item.count.toString()
             },
-            { inner -> listener(groupPosition, inner) }
+            listener = { inner -> listener(groupPosition, inner) }
         )
     }
 

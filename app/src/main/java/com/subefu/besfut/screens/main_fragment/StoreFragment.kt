@@ -1,14 +1,12 @@
 package com.subefu.besfut.screens.main_fragment
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -21,161 +19,156 @@ import com.subefu.besfut.databinding.FragmentStoreBinding
 import com.subefu.besfut.db.Dao
 import com.subefu.besfut.db.DbCoin
 import com.subefu.besfut.db.DbItem
+import com.subefu.besfut.db.DbState
 import com.subefu.besfut.db.DbStoreHistory
 import com.subefu.besfut.db.MyDatabase
 import com.subefu.besfut.models.ModelGroup
 import com.subefu.besfut.utils.BindViewHolder
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 class StoreFragment : Fragment() {
-   lateinit var binding: FragmentStoreBinding
-   lateinit var rv: RecyclerView
+    var _binding: FragmentStoreBinding? = null
+    val binding get() = _binding!!
+    lateinit var dao: Dao
 
-   lateinit var dao: Dao
-   
-    var currentDate = "00-00-00" 
+    var currentDate = SimpleDateFormat("dd-MM-yy", Locale.getDefault()).format(Date())
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentStoreBinding.inflate(inflater)
-
-        init()
-
+        _binding = FragmentStoreBinding.inflate(inflater)
         return binding.root
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        dao = MyDatabase.getDb(context).getDao()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        dao = MyDatabase.getDb(requireContext()).getDao()
+        loadStoreGoods()
     }
 
-    fun init(){
-        currentDate = SimpleDateFormat("dd-MM-yy").format(Date())
-        
-        loadState()
-        loadingStoreGoods()
+    override fun onStart() {
+        super.onStart()
+        loadCurrentState()
     }
 
-    fun loadState(){
-        dao.getCurrentState().asLiveData().observe(viewLifecycleOwner){
-            if (it == null) return@observe
-            lifecycleScope.launch(Dispatchers.IO) {
-                if(checkCurrentcurrentDate())
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        loadingBalance(it.amountCoin)
-                        loadingCoinLimit(it.coinInDay, it.coinLimitDay)
-                    }
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
+
+    fun loadCurrentState(){
+        dao.getCurrentState().asLiveData().observe(viewLifecycleOwner){ state ->
+            state ?: return@observe
+
+            viewLifecycleOwner.lifecycleScope.launch {
+                val isCurrentDate = checkCurrentDate()
+                if(isCurrentDate && isAdded)
+                    updateUi(state)
                 else
-                    upcurrentDateCurrentcurrentDate()
+                    updateCurrentDate()
             }
-            Log.d("DB_TEST", "coin: ${it.amountCoin}, coinINDay: ${it.coinInDay}, coinLimit: ${it.coinLimitDay}")
         }
     }
-    @SuppressLint("SimplecurrentDateFormat")
-    suspend fun checkCurrentcurrentDate(): Boolean {
-        val isItcurrentDate = lifecycleScope.async(Dispatchers.IO) {
+    fun updateUi(state: DbState) {
+        binding.apply {
+            balanceCoinStore.text = state.amountCoin.toString()
+            progressCoinValueStore.text = "${state.coinInDay}/${state.coinLimitDay}"
+            progressCoinStore.apply {
+                progress = state.coinInDay
+                max = state.coinLimitDay
+            }
+        }
+    }
+    suspend fun checkCurrentDate(): Boolean {
+        return withContext(Dispatchers.IO){
             dao.getCurrentDate() == currentDate
         }
-        return isItcurrentDate.await()
     }
-    fun upcurrentDateCurrentcurrentDate(){
-        val newcurrentDate = currentDate
-        dao.updateCurrentDate(newcurrentDate)
-    }
-
-    fun loadingBalance(coin: Int){
-        binding.balanceCoinStore.text = coin.toString()
-    }
-    fun loadingCoinLimit(coinInDay: Int, coinLimit: Int){
-        binding.progressCoinValueStore.text = "$coinInDay/$coinLimit"
-
-        binding.progressCoinStore.apply {
-            progress = coinInDay
-            max = coinLimit
+    fun updateCurrentDate(){
+        lifecycleScope.launch(Dispatchers.IO) {
+            dao.updateCurrentDate(currentDate)
         }
     }
 
-    fun loadingStoreGoods(){
-        lifecycleScope.launch(Dispatchers.IO) {
-            val listModelGroups = ArrayList<ModelGroup<DbItem>>()
-
-            val listCategory = dao.getAllCategories(1)
-            for(category in listCategory){
-                val listItems = dao.getItemsByCategoryId(category.id)
-                listModelGroups.add(ModelGroup(category.name, listItems))
+    fun loadStoreGoods(){
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val categories = dao.getAllCategories(1)
+            val modelGroups = categories.map{ category ->
+                ModelGroup(category.name, dao.getItemsByCategoryId(category.id))
             }
-
-            lifecycleScope.launch(Dispatchers.Main) {
-                setRecycler(listModelGroups)
+            withContext(Dispatchers.Main) {
+                if(isAdded)
+                    setRecycler(modelGroups)
             }
         }
     }
     fun setRecycler(goods: List<ModelGroup<DbItem>>){
-        rv = binding.rvGroupStore
-        rv.adapter = createGroupAdapter(goods)
+        binding.rvGroupStore.adapter = createGroupAdapter(goods)
     }
     fun createGroupAdapter(goods: List<ModelGroup<DbItem>>): GroupAdapter<ModelGroup<DbItem>> {
         return GroupAdapter(
-            goods,
-            object : BindViewHolder<ModelGroup<DbItem>> {
-                override fun bind(view: View, item: ModelGroup<DbItem>, position: Int, listener: (out: Int, inn: Int) -> Unit) {
-                    bindGroupView(view, item, position, listener)
-                }
-            },
-            { out, inn ->
+            listItem = goods,
+            bindView = bindGroupView(),
+            listener = { out, inn ->
                 val item = goods[out].listItems[inn]
-                buyGoods(item)
-                Log.d("INFO", "${item.name} - ${item.price}")
+                buyItem(item)
             }
         )
     }
-    fun bindGroupView(view: View, item: ModelGroup<DbItem>, position: Int, listener: (out: Int, inn: Int) -> Unit) {
-        view.findViewById<TextView>(R.id.group_name).text = item.name
-        val rv = view.findViewById<RecyclerView>(R.id.rv_items)
-        rv.layoutManager = GridLayoutManager(requireContext(), 2)
-        rv.adapter = createItemAdapter(item.listItems, position, listener)
+    fun bindGroupView() = object : BindViewHolder<ModelGroup<DbItem>>{
+        override fun bind(view: View, item: ModelGroup<DbItem>, position: Int, listener: (Int, Int) -> Unit) {
+            view.findViewById<TextView>(R.id.group_name).text = item.name
+            view.findViewById<RecyclerView>(R.id.rv_items).apply {
+                layoutManager = GridLayoutManager(requireContext(), 2)
+                adapter = createItemAdapter(item.listItems, position, listener)
+            }
+        }
     }
-    fun createItemAdapter(items: List<DbItem>, groupPosition: Int, listener: (out: Int, inn: Int) -> Unit): ItemAdapter<DbItem> {
-        return ItemAdapter(
-            R.layout.model_item,
-            items,
-            { view, item ->
+    fun createItemAdapter(items: List<DbItem>, groupPosition: Int, listener: (Int, Int) -> Unit) = ItemAdapter(
+            itemLayoutRes = R.layout.model_item,
+            listItem = items,
+            bindView = { view, item ->
                 view.findViewById<TextView>(R.id.item_name).text = item.name
                 view.findViewById<TextView>(R.id.item_price).text = item.price.toString()
             },
-            { inner -> listener(groupPosition, inner) }
+            listener = { inner -> listener(groupPosition, inner) }
         )
-    }
 
 
-    fun buyGoods(item: DbItem){
+    fun buyItem(item: DbItem){
         lifecycleScope.launch(Dispatchers.IO) {
-            if(dao.getReminderCoinInDay() < item.price)
+            val remainingCoins = dao.getReminderCoinInDay()
+            if(remainingCoins < item.price){
+                withContext(Dispatchers.Main) {
+                    if(isAdded)
+                        Toast.makeText(context, "Недостаточно монет", Toast.LENGTH_SHORT).show()
+                }
                 return@launch
-
-            spentHistoryCoin(item.price)
+            }
             dao.buyGoods(item.price)
             dao.updateStorageItem(item.id, item.quantity)
-            addHistoryStore(item)
+            updateHistory(item)
         }
     }
-
-    fun spentHistoryCoin(earn: Int){
-        val currentCoinHistory = dao.getCoinOfDate(currentDate) ?: DbCoin(date = currentDate, earn = 0)
-        Log.d("REWARD", "${currentCoinHistory.spent}")
-        currentCoinHistory.spent += earn
-        dao.setCoin(currentCoinHistory)
-        Log.d("REWARD", " += ${currentCoinHistory.spent}")
+    fun updateHistory(item: DbItem) {
+        updateCoinHistory(item)
+        updateStoreHistory(item)
     }
 
-    fun addHistoryStore(item: DbItem){
-        val currentStoreHistory = dao.getRecordOfStoreHistoryByDate(item.id, currentDate)
+    fun updateCoinHistory(item: DbItem) {
+        val coinHistory = dao.getCoinOfDate(currentDate) ?: DbCoin(date = currentDate, earn = 0)
+        coinHistory.spent += item.price
+        dao.setCoin(coinHistory)
+    }
+
+    fun updateStoreHistory(item: DbItem) {
+        val storeHistory = dao.getRecordOfStoreHistoryByDate(item.id, currentDate)
             ?: DbStoreHistory(rewardId = item.id, value = 0, date = currentDate)
-        Log.d("REWARD", "${currentStoreHistory}")
-        currentStoreHistory.value += item.quantity
-        dao.setRecordStoreHistory(currentStoreHistory)
+        storeHistory.value += item.quantity
+        dao.setRecordStoreHistory(storeHistory)
     }
 }
