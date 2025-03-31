@@ -19,14 +19,14 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.layoutStore.setOnClickListener { showBottomSheet<DbItem>("items") }
-        binding.layoutReward.setOnClickListener { showBottomSheet<DbReward>("rewards") }
+        binding.layoutStore.setOnClickListener { showBottomSheet("items") }
+        binding.layoutReward.setOnClickListener { showBottomSheet("rewards") }
 
         hideSystemPanel()
     }
 
-    fun <T: ReceiveInfoItem> showBottomSheet(type: String){
-        SettingSheetFragment<T>(type).show(supportFragmentManager, "bottom sheet")
+    fun showBottomSheet(type: String){
+        SettingSheetFragment(type).show(supportFragmentManager, "bottom sheet")
     }
 
     fun hideSystemPanel(){
